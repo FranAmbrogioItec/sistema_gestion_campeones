@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Registrar Nueva Venta{% endblock %}
+
+{% block content %}
+    <h1>Registrar Nueva Venta</h1>
+    <form method="POST">
+        {{ form.csrf_token }}
+
+        <div class="mb-3">
+            {{ form.sku.label(class="form-label") }}
+            {{ form.sku(class="form-control") }}
+            {% if form.sku.errors %}
+                {% for error in form.sku.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="mb-3">
+            {{ form.cantidad.label(class="form-label") }}
+            {{ form.cantidad(class="form-control") }}
+            {% if form.cantidad.errors %}
+                {% for error in form.cantidad.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="mb-3">
+            {{ form.precio_unitario.label(class="form-label") }}
+            {{ form.precio_unitario(class="form-control") }}
+            {% if form.precio_unitario.errors %}
+                {% for error in form.precio_unitario.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        
+        {{ form.submit(class="btn btn-success") }}
+    </form>
+{% endblock %}

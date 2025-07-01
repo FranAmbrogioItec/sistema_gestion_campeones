@@ -1,0 +1,237 @@
+/* ===== SIDEBAR REDISEÑADO ===== */
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+#wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+#sidebar-wrapper {
+    min-height: 100vh;
+    width: 15rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1030;
+    
+    display: flex;
+    flex-direction: column;
+
+    background-color: #343a40 !important;
+    color: white;
+
+    margin-left: -15rem;
+    transition: margin .25s ease-out;
+    
+    /* Sombra sutil para dar profundidad */
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== HEADER DEL SIDEBAR (LOGO + TÍTULO) ===== */
+#sidebar-wrapper .sidebar-heading {
+    padding: 1.5rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    min-height: 80px;
+    background: linear-gradient(135deg, #343a40 0%, #495057 100%);
+}
+
+.sidebar-logo {
+    width: 40px !important;
+    height: 40px !important;
+    margin-right: 0.75rem;
+    object-fit: contain !important;
+    border-radius: 8px;
+    background: white;
+    padding: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-heading span {
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    line-height: 1.2;
+    text-align: center;
+}
+
+/* ===== MENÚ DE NAVEGACIÓN ===== */
+#sidebar-wrapper .list-group {
+    flex-grow: 1;
+    width: 15rem;
+    padding: 0.5rem 0;
+}
+
+#sidebar-wrapper .list-group-item {
+    background-color: transparent !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    border: 0 !important;
+    padding: 0.75rem 1.5rem;
+    margin: 0.125rem 0.5rem;
+    border-radius: 8px;
+    
+    display: flex;
+    align-items: center;
+    
+    font-size: 0.95rem;
+    font-weight: 500;
+    
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+#sidebar-wrapper .list-group-item:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+#sidebar-wrapper .list-group-item.active {
+    background-color: #007bff !important;
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+#sidebar-wrapper .list-group-item i {
+    font-size: 1.1rem;
+    width: 20px;
+    text-align: center;
+    margin-right: 0.75rem;
+}
+
+/* ===== PERFIL DE USUARIO (FOOTER) ===== */
+#sidebar-wrapper .sidebar-bottom {
+    padding: 1.5rem 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+}
+
+.sidebar-bottom .d-flex {
+    align-items: center;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    transition: background-color 0.3s ease;
+}
+
+.sidebar-bottom .d-flex:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-bottom .rounded-circle {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+    background: linear-gradient(135deg, #007bff, #0056b3) !important;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    margin-right: 0.75rem;
+}
+
+.sidebar-bottom small {
+    display: block;
+    line-height: 1.3;
+}
+
+.sidebar-bottom small:first-child {
+    font-weight: 600;
+    color: white;
+    font-size: 0.85rem;
+}
+
+.sidebar-bottom small.text-muted {
+    color: rgba(255, 255, 255, 0.6) !important;
+    font-size: 0.75rem;
+}
+
+/* ===== CONTENIDO PRINCIPAL ===== */
+#page-content-wrapper {
+    flex-grow: 1;
+    min-height: 100vh;
+    padding-left: 0;
+    margin-left: 0;
+    
+    display: flex;
+    flex-direction: column;
+    
+    background-color: #f8f9fa;
+}
+
+#page-content-wrapper .navbar {
+    width: 100%;
+    background: white !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+#page-content-wrapper .container-fluid.py-4 {
+    flex-grow: 1;
+    padding: 2rem 1.5rem;
+}
+
+/* ===== BOTÓN DE TOGGLE ===== */
+#sidebarToggle {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: none;
+    padding: 0.5rem 0.75rem;
+}
+
+/* ===== ESTADOS DE TOGGLE ===== */
+body.sb-sidenav-toggled #wrapper #sidebar-wrapper {
+    margin-left: 0;
+}
+
+body.sb-sidenav-toggled #wrapper #page-content-wrapper {
+    margin-left: 15rem;
+    min-width: calc(100vw - 15rem);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (min-width: 768px) {
+    #sidebar-wrapper {
+        margin-left: 0;
+    }
+    #page-content-wrapper {
+        margin-left: 15rem;
+        min-width: calc(100vw - 15rem);
+    }
+    body.sb-sidenav-toggled #wrapper #sidebar-wrapper {
+        margin-left: -15rem;
+    }
+    body.sb-sidenav-toggled #wrapper #page-content-wrapper {
+        margin-left: 0;
+    }
+}
+
+/* ===== SCROLLBAR PERSONALIZADO PARA SIDEBAR ===== */
+#sidebar-wrapper::-webkit-scrollbar {
+    width: 6px;
+}
+
+#sidebar-wrapper::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+#sidebar-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+#sidebar-wrapper::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}

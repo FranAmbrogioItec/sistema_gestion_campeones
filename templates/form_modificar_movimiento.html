@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Modificar Movimiento{% endblock %}
+
+{% block content %}
+    <h1>Modificar Movimiento de Caja</h1>
+
+    <form method="POST">
+        <div class="mb-3">
+            <label for="tipo" class="form-label">Tipo de Movimiento</label>
+            <select class="form-select" id="tipo" name="tipo" required>
+                <option value="ingreso" {% if movimiento.tipo == 'ingreso' %}selected{% endif %}>Ingreso</option>
+                <option value="egreso" {% if movimiento.tipo == 'egreso' %}selected{% endif %}>Egreso</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="motivo" class="form-label">Motivo</label>
+            <input type="text" class="form-control" id="motivo" name="motivo" value="{{ movimiento.motivo }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="monto" class="form-label">Monto</label>
+            <input type="number" step="0.01" class="form-control" id="monto" name="monto" value="{{ "%.2f"|format(movimiento.monto) }}" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        <a href="{{ url_for('movimientos_caja') }}" class="btn btn-secondary">Cancelar</a>
+    </form>
+{% endblock %}

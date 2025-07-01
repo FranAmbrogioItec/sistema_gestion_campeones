@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Inicio - Gestión de Indumentaria{% endblock %}
+
+{% block content %}
+    <h1>Inventario</h1>
+    {% if productos %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Categoría</th>
+                    <th>Equipo</th>
+                    <th>Temporada</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for producto in productos %}
+                    <tr>
+                        <td>{{ producto.id }}</td>
+                        <td>{{ producto.nombre }}</td>
+                        <td>{{ producto.categoria }}</td>
+                        <td>{{ producto.equipo }}</td>
+                        <td>{{ producto.temporada }}</td>
+                        <td>
+                            <a href="{{ url_for('cargar_variante', producto_id=producto.id) }}" class="btn btn-sm btn-primary">Añadir Variante</a>
+                            </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No hay productos cargados aún. <a href="{{ url_for('cargar_producto') }}">Cargar el primer producto</a>.</p>
+    {% endif %}
+
+    <h2 class="mt-5">Variantes de Productos (Stock Actual)</h2>
+    {% if productos %}
+        {% for producto in productos %}
+            {% if producto.variantes %}
+                <h4>{{ producto.nombre }} ({{ producto.equipo }} - {{ producto.temporada }})</h4>
+                <table class="table table-sm table-bordered">
+                    <thead>
+                        <tr>
+                            <th>SKU</th>
+                            <th>Talle</th>
+                            <th>Color</th>
+                            <th>Stock Actual</th>
+                            </tr>
+                    </thead>
+                    <tbody>
+                        {% for variante in producto.variantes %}
+                            <tr>
+                                <td>{{ variante.sku }}</td>
+                                <td>{{ variante.talle }}</td>
+                                <td>{{ variante.color }}</td>
+                                <td>
+                                    <span class="{% if variante.stock_actual <= 5 %}text-danger fw-bold{% elif variante.stock_actual <= 10 %}text-warning{% endif %}">
+                                        {{ variante.stock_actual }}
+                                    </span>
+                                </td>
+                                </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>El producto "{{ producto.nombre }}" no tiene variantes cargadas. <a href="{{ url_for('cargar_variante', producto_id=producto.id) }}">Añadir variante</a>.</p>
+            {% endif %}
+            <hr>
+        {% endfor %}
+    {% endif %}
+
+
+{% endblock %}

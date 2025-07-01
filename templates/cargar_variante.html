@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Cargar Variante para {{ producto.nombre }}{% endblock %}
+
+{% block content %}
+    <h1>Cargar Variante para: <br> {{ producto.nombre }} ({{ producto.equipo }} - {{ producto.temporada }})</h1>
+    <form method="POST">
+        {{ form.csrf_token }}
+
+        <div class="mb-3">
+            {{ form.talle.label(class="form-label") }}
+            {{ form.talle(class="form-control") }}
+            {% if form.talle.errors %}
+                {% for error in form.talle.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="mb-3">
+            {{ form.color.label(class="form-label") }}
+            {{ form.color(class="form-control") }}
+            {% if form.color.errors %}
+                {% for error in form.color.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="mb-3">
+            {{ form.sku.label(class="form-label") }}
+            {{ form.sku(class="form-control") }}
+            {% if form.sku.errors %}
+                {% for error in form.sku.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="mb-3">
+            {{ form.stock.label(class="form-label") }}
+            {{ form.stock(class="form-control") }}
+            {% if form.stock.errors %}
+                {% for error in form.stock.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        
+        {{ form.submit(class="btn btn-success") }}
+    </form>
+{% endblock %}

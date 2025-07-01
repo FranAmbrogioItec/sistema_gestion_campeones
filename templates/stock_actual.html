@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Stock Actual{% endblock %}
+
+{% block content %}
+    <h1>Stock Actual de Variantes</h1>
+    {% if variantes %}
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>SKU</th>
+                    <th>Producto</th>
+                    <th>Talle</th>
+                    <th>Color</th>
+                    <th>Stock Actual</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for variante in variantes %}
+                    <tr>
+                        <td>{{ variante.sku }}</td>
+                        <td>{{ variante.producto.nombre }} ({{ variante.producto.equipo }})</td>
+                        <td>{{ variante.talle }}</td>
+                        <td>{{ variante.color }}</td>
+                        <td>
+                            <span class="{% if variante.stock_actual <= 5 %}text-danger fw-bold{% elif variante.stock_actual <= 10 %}text-warning{% endif %}">
+                                {{ variante.stock_actual }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="#" class="btn btn-sm btn-info disabled">Ajustar Stock (prox.)</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No hay variantes de productos registradas en stock.</p>
+    {% endif %}
+{% endblock %}
