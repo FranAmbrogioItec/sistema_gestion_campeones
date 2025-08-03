@@ -12,8 +12,8 @@ class ProductoForm(FlaskForm):
 
 class VarianteForm(FlaskForm):
     talle = StringField('Talle', validators=[DataRequired(), Length(max=10)])
-    color = StringField('Color', validators=[DataRequired(), Length(max=50)])
     sku = StringField('SKU (Identificador Único)', validators=[DataRequired(), Length(max=50)])
+    precio = FloatField('Precio', validators=[DataRequired(), NumberRange(min=0.01, message="El precio debe ser mayor que 0.")])
     stock = IntegerField('Stock Inicial', validators=[DataRequired(), NumberRange(min=0, message="El stock no puede ser negativo.")])
     submit = SubmitField('Cargar Variante')
 

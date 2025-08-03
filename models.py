@@ -1,3 +1,6 @@
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
@@ -18,8 +21,8 @@ class Variante(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     producto_id = db.Column(db.Integer, db.ForeignKey('producto.id'), nullable=False)
     talle = db.Column(db.String(10), nullable=False)
-    color = db.Column(db.String(50), nullable=False)
     sku = db.Column(db.String(50), unique=True, nullable=False)
+    precio = db.Column(db.Float, nullable=False)  # <-- Recomendado para simplificar
     stock_inicial = db.Column(db.Integer, default=0)
     stock_actual = db.Column(db.Integer, default=0)
     ventas = db.relationship('VentaItem', backref='variante', lazy=True)
@@ -27,6 +30,7 @@ class Variante(db.Model):
 
     def __repr__(self):
         return f'<Variante {self.sku}>'
+
 
 class Venta(db.Model):
     id = db.Column(db.Integer, primary_key=True)

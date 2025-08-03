@@ -1,19 +1,21 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 import os
 from datetime import datetime
-
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from models import db, Producto, Variante, Venta, VentaItem, Caja, MovimientoCaja, MovimientoStock
 
 from forms import VentaForm, ProductoForm, VarianteForm, MovimientoCajaForm
 
 # Configuración de la aplicación
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'una_clave_muy_secreta') # Usa una variable de entorno para producción
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'una_clave_muy_secreta') 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///stock_ventas.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Inicializa db con la aplicación Flask
 db.init_app(app)
+migrate = Migrate(app, db)
 
 
 # Context processor para hacer 'datetime' disponible en todas las plantillas
@@ -21,8 +23,8 @@ db.init_app(app)
 def inject_datetime():
     return {'datetime': datetime}
 
-# Rutas de la aplicación
 
+# Rutas de la aplicación
 @app.route('/')
 def index():
     productos = Producto.query.all()
@@ -56,7 +58,6 @@ def cargar_variante(producto_id):
         nueva_variante = Variante(
             producto_id=producto.id,
             talle=form.talle.data,
-            color=form.color.data,
             sku=form.sku.data,
             stock_inicial=form.stock.data,
             stock_actual=form.stock.data # El stock actual es igual al inicial al cargar
@@ -135,7 +136,7 @@ def registrar_venta():
             db.session.add(movimiento_caja)
 
             db.session.commit()
-            flash(f'Venta de {cantidad} unidades de {variante.producto.nombre} ({variante.talle}, {variante.color}) registrada exitosamente!', 'success')
+            flash(f'Venta de {cantidad} unidades de {variante.producto.nombre} ({variante.talle}) registrada exitosamente!', 'success')
             return redirect(url_for('registrar_venta'))
             
     return render_template('venta.html', form=form)
