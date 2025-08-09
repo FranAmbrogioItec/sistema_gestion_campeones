@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Ajustar Stock - {{ variante.producto.nombre }} ({{ variante.talle }}){% endblock %}
+{% block page_title %}Ajustar Stock - {{ variante.producto.nombre }} ({{ variante.talle }}){% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <form method="post" action="{{ url_for('ajustar_stock', variante_id=variante.id) }}">
+            <div class="row g-3">
+                <div class="col-md-12">
+                    <div class="alert alert-info">
+                        <strong>Stock actual:</strong> {{ variante.stock }} unidades
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <label for="tipo" class="form-label">Tipo de Ajuste</label>
+                    <select class="form-select" id="tipo" name="tipo" required>
+                        <option value="entrada">Entrada</option>
+                        <option value="salida">Salida</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-4">
+                    <label for="cantidad" class="form-label">Cantidad</label>
+                    <input type="number" class="form-control" id="cantidad" name="cantidad" min="1" required>
+                </div>
+                
+                <div class="col-md-12">
+                    <label for="motivo" class="form-label">Motivo</label>
+                    <input type="text" class="form-control" id="motivo" name="motivo" placeholder="Ej: Compra a proveedor, devolución, etc.">
+                </div>
+                
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle"></i> Aplicar Ajuste
+                    </button>
+                    <a href="{{ url_for('gestion_stock') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

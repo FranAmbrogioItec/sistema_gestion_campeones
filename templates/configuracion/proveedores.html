@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Gestión de Proveedores{% endblock %}
+{% block page_title %}Gestión de Proveedores{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="post" action="{{ url_for('gestion_proveedores') }}">
+            {{ form.hidden_tag() }}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        {{ form.nombre.label(class="form-label") }}
+                        {{ form.nombre(class="form-control") }}
+                        {% if form.nombre.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.nombre.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        {{ form.contacto.label(class="form-label") }}
+                        {{ form.contacto(class="form-control") }}
+                        {% if form.contacto.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.contacto.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        {{ form.telefono.label(class="form-label") }}
+                        {{ form.telefono(class="form-control") }}
+                        {% if form.telefono.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.telefono.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        {{ form.email.label(class="form-label") }}
+                        {{ form.email(class="form-control") }}
+                        {% if form.email.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.email.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Agregar Proveedor
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Proveedores Registrados</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Contacto</th>
+                        <th>Teléfono</th>
+                        <th>Email</th>
+                        <th>Productos</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for proveedor in proveedores %}
+                    <tr>
+                        <td>{{ proveedor.nombre }}</td>
+                        <td>{{ proveedor.contacto }}</td>
+                        <td>{{ proveedor.telefono }}</td>
+                        <td>{{ proveedor.email }}</td>
+                        <td>
+                            <span class="badge bg-primary">{{ proveedor.productos|length }}</span>
+                        </td>
+                        <td>
+                            <a href="#" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center">No hay proveedores registrados</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Productos{% endblock %}
+{% block page_title %}Gestión de Productos{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Filtros</h5>
+        <a href="{{ url_for('crear_producto') }}" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-circle"></i> Nuevo Producto
+        </a>
+    </div>
+    <div class="card-body">
+        <form method="get" action="{{ url_for('listar_productos') }}">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label for="club" class="form-label">Club</label>
+                    <select class="form-select" id="club" name="club">
+                        <option value="">Todos</option>
+                        {% for club in clubes %}
+                            <option value="{{ club.id }}" {% if filtros.club == club.id|string %}selected{% endif %}>{{ club.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="temporada" class="form-label">Temporada</label>
+                    <input type="text" class="form-control" id="temporada" name="temporada" value="{{ filtros.temporada or '' }}" placeholder="Ej: 2023">
+                </div>
+                <div class="col-md-3">
+                    <label for="categoria" class="form-label">Categoría</label>
+                    <select class="form-select" id="categoria" name="categoria">
+                        <option value="">Todas</option>
+                        {% for categoria in categorias %}
+                            <option value="{{ categoria.id }}" {% if filtros.categoria == categoria.id|string %}selected{% endif %}>{{ categoria.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="talle" class="form-label">Talle</label>
+                    <select class="form-select" id="talle" name="talle">
+                        <option value="">Todos</option>
+                        {% for talle in talles %}
+                            <option value="{{ talle }}" {% if filtros.talle == talle %}selected{% endif %}>{{ talle }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-12 text-end">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="bi bi-funnel"></i> Filtrar
+                    </button>
+                    <a href="{{ url_for('listar_productos') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> Limpiar
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Listado de Productos</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Club</th>
+                        <th>Categoría</th>
+                        <th>Temporada</th>
+                        <th>Variantes</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for producto in productos %}
+                    <tr>
+                        <td>{{ producto.nombre }}</td>
+                        <td>{{ producto.club.nombre }}</td>
+                        <td>{{ producto.categoria_rel.nombre }}</td>
+                        <td>{{ producto.temporada }}</td>
+                        <td>
+                            <span class="badge bg-primary">{{ producto.variantes|length }}</span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('agregar_variantes', producto_id=producto.id) }}" class="btn btn-sm btn-outline-primary" title="Variantes">
+                                <i class="bi bi-list-ul"></i>
+                            </a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center">No se encontraron productos</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

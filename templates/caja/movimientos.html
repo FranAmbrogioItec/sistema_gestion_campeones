@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Movimientos de Caja{% endblock %}
+{% block page_title %}Movimientos de Caja{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Filtros</h5>
+    </div>
+    <div class="card-body">
+        <form method="get" action="{{ url_for('listar_movimientos_caja') }}">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label for="fecha_desde" class="form-label">Desde</label>
+                    <input type="date" class="form-control" id="fecha_desde" name="fecha_desde" value="{{ filtros.fecha_desde or '' }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="fecha_hasta" class="form-label">Hasta</label>
+                    <input type="date" class="form-control" id="fecha_hasta" name="fecha_hasta" value="{{ filtros.fecha_hasta or '' }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="tipo" class="form-label">Tipo</label>
+                    <select class="form-select" id="tipo" name="tipo">
+                        <option value="">Todos</option>
+                        <option value="ingreso" {% if filtros.tipo == 'ingreso' %}selected{% endif %}>Ingreso</option>
+                        <option value="egreso" {% if filtros.tipo == 'egreso' %}selected{% endif %}>Egreso</option>
+                    </select>
+                </div>
+                <div class="col-md-3 text-end">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="bi bi-funnel"></i> Filtrar
+                    </button>
+                    <a href="{{ url_for('listar_movimientos_caja') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> Limpiar
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Historial de Movimientos</h5>
+        <span class="badge bg-primary">{{ movimientos|length }} movimientos</span>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Tipo</th>
+                        <th>Monto</th>
+                        <th>Motivo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for movimiento in movimientos %}
+                    <tr>
+                        <td>{{ movimiento.fecha.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td>
+                            <span class="badge {% if movimiento.tipo == 'ingreso' %}bg-success{% else %}bg-danger{% endif %}">
+                                {{ movimiento.tipo|title }}
+                            </span>
+                        </td>
+                        <td>${{ "%.2f"|format(movimiento.monto) }}</td>
+                        <td>{{ movimiento.motivo }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center">No se encontraron movimientos</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

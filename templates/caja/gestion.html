@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Gestión de Caja{% endblock %}
+{% block page_title %}Gestión de Caja{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5 class="card-title">Saldo Actual</h5>
+                <p class="card-text display-6">${{ "%.2f"|format(caja.saldo) }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('nuevo_movimiento_caja') }}" class="btn btn-success">
+                        <i class="bi bi-plus-circle"></i> Nuevo Ingreso
+                    </a>
+                    <a href="{{ url_for('nuevo_movimiento_caja') }}" class="btn btn-danger">
+                        <i class="bi bi-dash-circle"></i> Nuevo Egreso
+                    </a>
+                    <a href="{{ url_for('listar_movimientos_caja') }}" class="btn btn-primary">
+                        <i class="bi bi-list-check"></i> Ver Todos
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Últimos Movimientos</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Tipo</th>
+                        <th>Monto</th>
+                        <th>Motivo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for movimiento in movimientos %}
+                    <tr>
+                        <td>{{ movimiento.fecha.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td>
+                            <span class="badge {% if movimiento.tipo == 'ingreso' %}bg-success{% else %}bg-danger{% endif %}">
+                                {{ movimiento.tipo|title }}
+                            </span>
+                        </td>
+                        <td>${{ "%.2f"|format(movimiento.monto) }}</td>
+                        <td>{{ movimiento.motivo }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center">No se encontraron movimientos</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

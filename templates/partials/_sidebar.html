@@ -1,0 +1,35 @@
+<div class="sticky-top pt-3">
+    <ul class="nav flex-column">
+        <li class="nav-item">
+            <a class="nav-link {% if request.endpoint == 'listar_productos' %}active{% endif %}" href="{{ url_for('listar_productos') }}">
+                <i class="bi bi-tshirt"></i> Productos
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if request.endpoint == 'nueva_venta' %}active{% endif %}" href="{{ url_for('nueva_venta') }}">
+                <i class="bi bi-cash-stack"></i> Ventas
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if request.endpoint == 'gestion_stock' %}active{% endif %}" href="{{ url_for('gestion_stock') }}">
+                <i class="bi bi-box-seam"></i> Stock
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if request.endpoint == 'gestion_caja' %}active{% endif %}" href="{{ url_for('gestion_caja') }}">
+                <i class="bi bi-cash-coin"></i> Caja
+            </a>
+        </li>
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                <i class="bi bi-gear"></i> Configuración
+            </a>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{{ url_for('gestion_clubes') }}">Clubes</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('gestion_categorias') }}">Categorías</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('gestion_clientes') }}">Clientes</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('gestion_proveedores') }}">Proveedores</a></li>
+            </ul>
+        </li>
+    </ul>
+</div>

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Editar Variante{% endblock %}
+{% block page_title %}Editar Variante{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <form method="post" action="{{ url_for('editar_variante', variante_id=variante.id) }}">
+            {{ form.hidden_tag() }}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        {{ form.talle.label(class="form-label") }}
+                        {{ form.talle(class="form-select") }}
+                        {% if form.talle.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.talle.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        {{ form.color.label(class="form-label") }}
+                        {{ form.color(class="form-control") }}
+                        {% if form.color.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.color.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        {{ form.sku.label(class="form-label") }}
+                        {{ form.sku(class="form-control") }}
+                        {% if form.sku.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.sku.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        {{ form.precio.label(class="form-label") }}
+                        {{ form.precio(class="form-control") }}
+                        {% if form.precio.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.precio.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        {{ form.stock.label(class="form-label") }}
+                        {{ form.stock(class="form-control") }}
+                        {% if form.stock.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.stock.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        {{ form.stock_minimo.label(class="form-label") }}
+                        {{ form.stock_minimo(class="form-control") }}
+                        {% if form.stock_minimo.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.stock_minimo.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Guardar Cambios
+                    </button>
+                    <a href="{{ url_for('agregar_variantes', producto_id=variante.producto_id) }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

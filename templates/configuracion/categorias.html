@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Gestión de Categorías{% endblock %}
+{% block page_title %}Gestión de Categorías{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="post" action="{{ url_for('gestion_categorias') }}">
+            {{ form.hidden_tag() }}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        {{ form.nombre.label(class="form-label") }}
+                        {{ form.nombre(class="form-control") }}
+                        {% if form.nombre.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.nombre.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        {{ form.descripcion.label(class="form-label") }}
+                        {{ form.descripcion(class="form-control") }}
+                        {% if form.descripcion.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.descripcion.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Agregar Categoría
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Categorías Registradas</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Productos</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for categoria in categorias %}
+                    <tr>
+                        <td>{{ categoria.nombre }}</td>
+                        <td>{{ categoria.descripcion }}</td>
+                        <td>
+                            <span class="badge bg-primary">{{ categoria.productos|length }}</span>
+                        </td>
+                        <td>
+                            <a href="#" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center">No hay categorías registradas</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

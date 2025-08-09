@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block title %}Nueva Venta{% endblock %}
+{% block page_title %}Nueva Venta{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Buscar productos
+    $('#buscar-producto').on('input', function() {
+        const term = $(this).val();
+        if (term.length < 2) return;
+        
+        $.get('/api/buscar_productos', { q: term }, function(data) {
+            $('#resultados-busqueda').empty();
+            data.forEach(function(item) {
+                const btn = $(`
+                    <button type="button" class="list-group-item list-group-item-action" 
+                            data-id="${item.id}" data-precio="${item.precio}" data-stock="${item.stock}">
+                        ${item.text}
+                    </button>
+                `);
+                btn.click(function() {
+                    agregarProducto(item.id, item.text, item.precio, item.stock);
+                    $('#buscar-producto').val('');
+                    $('#resultados-busqueda').empty();
+                });
+                $('#resultados-busqueda').append(btn);
+            });
+        });
+    });
+    
+    // Agregar producto a la venta
+    function agregarProducto(id, texto, precio, stock) {
+        const itemId = `item_${id}`;
+        if ($(`#${itemId}`).length) {
+            alert('Este producto ya está en la venta');
+            return;
+        }
+        
+        const item = $(`
+            <div class="row g-3 mb-3 align-items-center" id="${itemId}">
+                <div class="col-md-5">
+                    <input type="text" class="form-control" value="${texto}" readonly>
+                    <input type="hidden" name="items[]" value="${id}_1">
+                </div>
+                <div class="col-md-2">
+                    <input type="number" class="form-control cantidad" value="1" min="1" max="${stock}">
+                </div>
+                <div class="col-md-2">
+                    <input type="text" class="form-control precio" value="${precio.toFixed(2)}" readonly>
+                </div>
+                <div class="col-md-2">
+                    <input type="text" class="form-control subtotal" value="${precio.toFixed(2)}" readonly>
+                </div>
+                <div class="col-md-1">
+                    <button type="button" class="btn btn-danger btn-sm eliminar-item">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `);
+        
+        item.find('.cantidad').change(function() {
+            const cantidad = parseInt($(this).val());
+            const precio = parseFloat(item.find('.precio').val());
+            const subtotal = cantidad * precio;
+            item.find('.subtotal').val(subtotal.toFixed(2));
+            item.find('input[name="items[]"]').val(`${id}_${cantidad}`);
+        });
+        
+        item.find('.eliminar-item').click(function() {
+            item.remove();
+        });
+        
+        $('#items-venta').append(item);
+    }
+    
+    // Manejar envío del formulario
+    $('form').submit(function(e) {
+        if ($('input[name="items[]"]').length === 0) {
+            e.preventDefault();
+            alert('Debe agregar al menos un producto a la venta');
+        }
+    });
+});
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <form method="post" action="{{ url_for('nueva_venta') }}">
+            {{ form.hidden_tag() }}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        {{ form.cliente_id.label(class="form-label") }}
+                        {{ form.cliente_id(class="form-select") }}
+                        {% if form.cliente_id.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.cliente_id.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="buscar-producto" class="form-label">Buscar Producto</label>
+                        <input type="text" class="form-control" id="buscar-producto" placeholder="SKU, nombre o club...">
+                        <div id="resultados-busqueda" class="list-group mt-2" style="position: absolute; z-index: 1000; width: 100%; max-height: 200px; overflow-y: auto;"></div>
+                    </div>
+                </div>
+                
+                <div class="col-md-12">
+                    <h5 class="mb-3">Productos</h5>
+                    <div id="items-venta">
+                        <!-- Aquí se agregarán los productos dinámicamente -->
+                    </div>
+                </div>
+                
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle"></i> Registrar Venta
+                    </button>
+                    <a href="{{ url_for('listar_ventas') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

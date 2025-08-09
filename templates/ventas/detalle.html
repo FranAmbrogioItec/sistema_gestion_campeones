@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Venta #{{ venta.id }}{% endblock %}
+{% block page_title %}Detalle de Venta #{{ venta.id }}{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h5>Información de la Venta</h5>
+                <table class="table table-sm">
+                    <tr>
+                        <th>Fecha:</th>
+                        <td>{{ venta.fecha_venta.strftime('%d/%m/%Y %H:%M') }}</td>
+                    </tr>
+                    <tr>
+                        <th>Cliente:</th>
+                        <td>{{ venta.cliente.nombre if venta.cliente else 'Cliente ocasional' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Tipo:</th>
+                        <td>{{ 'Física' if venta.tipo_venta == 'fisica' else 'Online' }}</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <h5>Resumen</h5>
+                <table class="table table-sm">
+                    <tr>
+                        <th>Total:</th>
+                        <td class="fw-bold">${{ "%.2f"|format(venta.total) }}</td>
+                    </tr>
+                    <tr>
+                        <th>Estado:</th>
+                        <td>
+                            <span class="badge {% if venta.estado == 'completada' %}bg-success{% elif venta.estado == 'cancelada' %}bg-danger{% else %}bg-warning{% endif %}">
+                                {{ venta.estado|title }}
+                            </span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Productos Vendidos</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Talle</th>
+                        <th>Precio Unitario</th>
+                        <th>Cantidad</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in venta.items %}
+                    <tr>
+                        <td>{{ item.variante.producto.nombre }} - {{ item.variante.producto.club.nombre }}</td>
+                        <td>{{ item.variante.talle }}</td>
+                        <td>${{ "%.2f"|format(item.precio_unitario) }}</td>
+                        <td>{{ item.cantidad }}</td>
+                        <td>${{ "%.2f"|format(item.subtotal) }}</td>
+                    </tr>
+                    {% endfor %}
+                    <tr class="table-active">
+                        <td colspan="4" class="text-end fw-bold">Total:</td>
+                        <td class="fw-bold">${{ "%.2f"|format(venta.total) }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer text-end">
+        <a href="{{ url_for('listar_ventas') }}" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left"></i> Volver a Ventas
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,290 +1,239 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
-import os
-from datetime import datetime
+from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from models import db, Producto, Variante, Venta, VentaItem, Caja, MovimientoCaja, MovimientoStock
+from flask_login import LoginManager
+import os
+from dotenv import load_dotenv
+from datetime import datetime
+from models import *
 
-from forms import VentaForm, ProductoForm, VarianteForm, MovimientoCajaForm
+# Cargar variables de entorno
+load_dotenv()
 
 # Configuración de la aplicación
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'una_clave_muy_secreta') 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///stock_ventas.db'
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///stock_ventas.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Inicializa db con la aplicación Flask
-db.init_app(app)
+# Inicializar extensiones
+db = SQLAlchemy(app)
 migrate = Migrate(app, db)
-
+login_manager = LoginManager(app)
+login_manager.login_view = 'login'
 
 # Context processor para hacer 'datetime' disponible en todas las plantillas
 @app.context_processor
 def inject_datetime():
     return {'datetime': datetime}
 
+# Modelos de la base de datos
+class Club(db.Model):
+    __tablename__ = 'clubes'
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(50), unique=True, nullable=False)
+    liga = db.Column(db.String(50))
+    logo = db.Column(db.String(100))
+    productos = db.relationship('Producto', backref='club', lazy=True)
 
-# Rutas de la aplicación
+class Categoria(db.Model):
+    __tablename__ = 'categorias'
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(50), unique=True, nullable=False)
+    descripcion = db.Column(db.String(200))
+    productos = db.relationship('Producto', backref='categoria_rel', lazy=True)
+
+class Producto(db.Model):
+    __tablename__ = 'productos'
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(100), nullable=False)
+    club_id = db.Column(db.Integer, db.ForeignKey('clubes.id'), nullable=False)
+    categoria_id = db.Column(db.Integer, db.ForeignKey('categorias.id'), nullable=False)
+    temporada = db.Column(db.String(10), nullable=False)
+    descripcion = db.Column(db.Text)
+    precio = db.Column(db.Float)
+    imagen_principal = db.Column(db.String(100))
+    activo = db.Column(db.Boolean, default=True)
+    fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
+    variantes = db.relationship('Variante', backref='producto', lazy=True, cascade="all, delete-orphan")
+
+class Variante(db.Model):
+    __tablename__ = 'variantes'
+    id = db.Column(db.Integer, primary_key=True)
+    producto_id = db.Column(db.Integer, db.ForeignKey('productos.id'), nullable=False)
+    talle = db.Column(db.String(10), nullable=False)
+    color = db.Column(db.String(30))
+    sku = db.Column(db.String(50), unique=True, nullable=False)
+    precio = db.Column(db.Float, nullable=False)
+    stock = db.Column(db.Integer, default=0)
+    stock_minimo = db.Column(db.Integer, default=5)
+    ventas = db.relationship('VentaItem', backref='variante', lazy=True)
+    movimientos = db.relationship('MovimientoStock', backref='variante', lazy=True, cascade="all, delete-orphan")
+
+class Cliente(db.Model):
+    __tablename__ = 'clientes'
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(100), unique=True)
+    telefono = db.Column(db.String(20))
+    direccion = db.Column(db.Text)
+    ventas = db.relationship('Venta', backref='cliente', lazy=True)
+
+class Venta(db.Model):
+    __tablename__ = 'ventas'
+    id = db.Column(db.Integer, primary_key=True)
+    fecha_venta = db.Column(db.DateTime, default=datetime.utcnow)
+    cliente_id = db.Column(db.Integer, db.ForeignKey('clientes.id'))
+    total = db.Column(db.Float, nullable=False)
+    tipo_venta = db.Column(db.String(20))
+    estado = db.Column(db.String(20), default='completada')
+    items = db.relationship('VentaItem', backref='venta', lazy=True, cascade="all, delete-orphan")
+    movimiento_caja_id = db.Column(db.Integer, db.ForeignKey('movimientos_caja.id'))
+
+class VentaItem(db.Model):
+    __tablename__ = 'ventas_items'
+    id = db.Column(db.Integer, primary_key=True)
+    venta_id = db.Column(db.Integer, db.ForeignKey('ventas.id'), nullable=False)
+    variante_id = db.Column(db.Integer, db.ForeignKey('variantes.id'), nullable=False)
+    cantidad = db.Column(db.Integer, nullable=False)
+    precio_unitario = db.Column(db.Float, nullable=False)
+    subtotal = db.Column(db.Float, nullable=False)
+
+class Caja(db.Model):
+    __tablename__ = 'cajas'
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(50), nullable=False)
+    saldo = db.Column(db.Float, default=0.0)
+    movimientos = db.relationship('MovimientoCaja', backref='caja', lazy=True, cascade="all, delete-orphan")
+
+class MovimientoCaja(db.Model):
+    __tablename__ = 'movimientos_caja'
+    id = db.Column(db.Integer, primary_key=True)
+    caja_id = db.Column(db.Integer, db.ForeignKey('cajas.id'), nullable=False)
+    fecha = db.Column(db.DateTime, default=datetime.utcnow)
+    tipo = db.Column(db.String(20), nullable=False)
+    motivo = db.Column(db.String(255), nullable=False)
+    monto = db.Column(db.Float, nullable=False)
+    venta = db.relationship('Venta', backref='movimiento_caja', uselist=False)
+
+class MovimientoStock(db.Model):
+    __tablename__ = 'movimientos_stock'
+    id = db.Column(db.Integer, primary_key=True)
+    variante_id = db.Column(db.Integer, db.ForeignKey('variantes.id'), nullable=False)
+    fecha = db.Column(db.DateTime, default=datetime.utcnow)
+    tipo = db.Column(db.String(20), nullable=False)
+    cantidad = db.Column(db.Integer, nullable=False)
+    motivo = db.Column(db.String(255))
+    usuario = db.Column(db.String(50))
+
+class Proveedor(db.Model):
+    __tablename__ = 'proveedores'
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(100), nullable=False)
+    contacto = db.Column(db.String(100))
+    telefono = db.Column(db.String(20))
+    email = db.Column(db.String(100))
+    productos = db.relationship('ProductoProveedor', backref='proveedor', lazy=True)
+
+class ProductoProveedor(db.Model):
+    __tablename__ = 'productos_proveedores'
+    id = db.Column(db.Integer, primary_key=True)
+    proveedor_id = db.Column(db.Integer, db.ForeignKey('proveedores.id'), nullable=False)
+    producto_id = db.Column(db.Integer, db.ForeignKey('productos.id'), nullable=False)
+    codigo_proveedor = db.Column(db.String(50))
+    precio_compra = db.Column(db.Float)
+
+class Usuario(db.Model):
+    __tablename__ = 'usuarios'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), unique=True, nullable=False)
+    password_hash = db.Column(db.String(128), nullable=False)
+    nombre = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(100), unique=True, nullable=False)
+    rol = db.Column(db.String(20), default='usuario')
+    activo = db.Column(db.Boolean, default=True)
+
+    def __repr__(self):
+        return f'<Usuario {self.username}>'
+
+# Configuración de Flask-Login
+@login_manager.user_loader
+def load_user(user_id):
+    return Usuario.query.get(int(user_id))
+
+# Funciones de utilidad
+def calcular_stock_disponible(variante_id):
+    variante = Variante.query.get(variante_id)
+    return variante.stock if variante else 0
+
+def actualizar_stock(variante_id, cantidad, tipo, motivo, usuario="Sistema"):
+    variante = Variante.query.get(variante_id)
+    if not variante:
+        return False
+    
+    if tipo == 'entrada':
+        variante.stock += cantidad
+    elif tipo == 'salida':
+        if variante.stock < cantidad:
+            return False
+        variante.stock -= cantidad
+    
+    movimiento = MovimientoStock(
+        variante_id=variante_id,
+        tipo=tipo,
+        cantidad=cantidad,
+        motivo=motivo,
+        usuario=usuario
+    )
+    db.session.add(movimiento)
+    db.session.commit()
+    return True
+
+# Rutas básicas
 @app.route('/')
 def index():
-    productos = Producto.query.all()
-    # Para cada producto, cargar sus variantes. Esto es importante para mostrar el stock en el index.html
-    for producto in productos:
-        producto.variantes  # Carga explícitamente las variantes para evitar LazyLoadingError en la plantilla
+    return render_template('index.html')
 
-    return render_template('index.html', productos=productos)
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    # Implementar lógica de login
+    return render_template('login.html')
 
-@app.route('/cargar_producto', methods=['GET', 'POST'])
-def cargar_producto():
-    form = ProductoForm()
-    if form.validate_on_submit():
-        nuevo_producto = Producto(
-            nombre=form.nombre.data,
-            categoria=form.categoria.data,
-            equipo=form.equipo.data,
-            temporada=form.temporada.data
-        )
-        db.session.add(nuevo_producto)
-        db.session.commit()
-        flash('Producto cargado exitosamente!', 'success')
-        return redirect(url_for('index'))
-    return render_template('cargar_producto.html', form=form)
+@app.route('/logout')
+def logout():
+    # Implementar lógica de logout
+    return redirect(url_for('index'))
 
-@app.route('/cargar_variante/<int:producto_id>', methods=['GET', 'POST'])
-def cargar_variante(producto_id):
-    producto = Producto.query.get_or_404(producto_id)
-    form = VarianteForm()
-    if form.validate_on_submit():
-        nueva_variante = Variante(
-            producto_id=producto.id,
-            talle=form.talle.data,
-            sku=form.sku.data,
-            stock_inicial=form.stock.data,
-            stock_actual=form.stock.data # El stock actual es igual al inicial al cargar
-        )
-        db.session.add(nueva_variante)
-        
-        # Registrar movimiento de stock inicial
-        movimiento = MovimientoStock(
-            variante=nueva_variante,
-            tipo='entrada',
-            cantidad=form.stock.data,
-            motivo='Carga inicial de variante'
-        )
-        db.session.add(movimiento)
-
-        db.session.commit()
-        flash(f'Variante para {producto.nombre} ({nueva_variante.sku}) cargada exitosamente!', 'success')
-        return redirect(url_for('index'))
-    return render_template('cargar_variante.html', form=form, producto=producto)
-
-
-@app.route('/registrar_venta', methods=['GET', 'POST'])
-def registrar_venta():
-    form = VentaForm()
-    if form.validate_on_submit():
-        sku = form.sku.data
-        cantidad = form.cantidad.data
-        precio_unitario = form.precio_unitario.data
-
-        variante = Variante.query.filter_by(sku=sku).first()
-
-        if not variante:
-            flash(f'SKU "{sku}" no encontrado.', 'danger')
-        elif variante.stock_actual < cantidad:
-            flash(f'Stock insuficiente para {variante.producto.nombre} ({variante.talle}, {variante.color}). Stock actual: {variante.stock_actual}', 'warning')
-        else:
-            # Crear la venta y el ítem de venta
-            nueva_venta = Venta(total=cantidad * precio_unitario)
-            db.session.add(nueva_venta)
-            db.session.flush() # Para obtener el ID de la venta antes de commit
-
-            venta_item = VentaItem(
-                venta_id=nueva_venta.id,
-                variante_id=variante.id,
-                cantidad=cantidad,
-                precio_unitario=precio_unitario
-            )
-            db.session.add(venta_item)
-
-            # Actualizar stock de la variante
-            variante.stock_actual -= cantidad
-            
-            # Registrar movimiento de stock
-            movimiento_stock = MovimientoStock(
-                variante=variante,
-                tipo='salida',
-                cantidad=cantidad,
-                motivo=f'Venta #{nueva_venta.id}'
-            )
-            db.session.add(movimiento_stock)
-
-            # Registrar movimiento en caja
-            caja = Caja.query.first()
-            if not caja:
-                caja = Caja(saldo=0.0)
-                db.session.add(caja)
-                db.session.flush()
-            
-            caja.saldo += nueva_venta.total
-            movimiento_caja = MovimientoCaja(
-                caja_id=caja.id,
-                tipo='ingreso',
-                monto=nueva_venta.total,
-                motivo=f'Venta de SKU {sku} (Venta #{nueva_venta.id})'
-            )
-            db.session.add(movimiento_caja)
-
-            db.session.commit()
-            flash(f'Venta de {cantidad} unidades de {variante.producto.nombre} ({variante.talle}) registrada exitosamente!', 'success')
-            return redirect(url_for('registrar_venta'))
-            
-    return render_template('venta.html', form=form)
-
-@app.route('/stock_actual')
-def stock_actual():
-    # Obtener todas las variantes con sus productos asociados
-    variantes = Variante.query.options(db.joinedload(Variante.producto)).all()
-    return render_template('stock_actual.html', variantes=variantes)
-
-@app.route('/ver_ventas')
-def ver_ventas():
-    ventas = Venta.query.order_by(Venta.fecha_venta.desc()).all()
-    return render_template('ver_ventas.html', ventas=ventas)
-
-@app.route('/ver_venta/<int:venta_id>')
-def ver_venta(venta_id):
-    venta = Venta.query.options(db.joinedload(Venta.items).joinedload(VentaItem.variante).joinedload(Variante.producto)).get_or_404(venta_id)
-    return render_template('ver_venta.html', venta=venta)
-
-@app.route('/movimientos_caja', methods=['GET', 'POST'])
-def movimientos_caja():
-    form = MovimientoCajaForm()
-    caja = Caja.query.first()
-    if not caja:
-        caja = Caja(saldo=0.0)
-        db.session.add(caja)
-        db.session.commit()
-
-    if form.validate_on_submit():
-        tipo = form.tipo.data
-        monto = form.monto.data
-        motivo = form.motivo.data
-
-        if tipo == 'egreso' and caja.saldo < monto:
-            flash('No hay suficiente saldo en caja para registrar este egreso.', 'danger')
-        else:
-            movimiento = MovimientoCaja(
-                caja_id=caja.id,
-                tipo=tipo,
-                monto=monto,
-                motivo=motivo
-            )
-            db.session.add(movimiento)
-            if tipo == 'ingreso':
-                caja.saldo += monto
-            else: # tipo == 'egreso'
-                caja.saldo -= monto
-            db.session.commit()
-            flash(f'Movimiento de {tipo} registrado exitosamente!', 'success')
-            return redirect(url_for('movimientos_caja'))
-
-    movimientos = MovimientoCaja.query.filter_by(caja_id=caja.id).order_by(MovimientoCaja.fecha.desc()).all()
-
-    # Calcular el balance total de caja
-    # Se recomienda calcularlo directamente desde la base de datos para mayor eficiencia en grandes volúmenes
-    # Aquí un ejemplo simple basado en el saldo actual de la tabla Caja
-    balance_total = caja.saldo
-
-    return render_template('movimientos_caja.html', form=form, caja=caja, movimientos=movimientos, balance_total=balance_total)
-
-
-# Nueva ruta para modificar un movimiento existente
-@app.route('/modificar_movimiento/<int:movimiento_id>', methods=['GET', 'POST'])
-def modificar_movimiento(movimiento_id):
-    movimiento = MovimientoCaja.query.get_or_404(movimiento_id)
-    # Crea el formulario con los datos existentes del movimiento
-    form = MovimientoCajaForm(obj=movimiento) # Esto pre-llena el formulario
-
-    if form.validate_on_submit():
-        # Calcular el cambio en el saldo de caja antes de aplicar la modificación
-        caja = Caja.query.first()
-        if not caja: # Debería existir si ya hay movimientos
-            flash('Error: No se encontró la caja principal.', 'danger')
-            return redirect(url_for('movimientos_caja'))
-
-        monto_anterior = movimiento.monto
-        tipo_anterior = movimiento.tipo
-        
-        monto_nuevo = form.monto.data
-        tipo_nuevo = form.tipo.data
-
-        # Revertir el impacto del movimiento anterior en el saldo de caja
-        if tipo_anterior == 'ingreso':
-            caja.saldo -= monto_anterior
-        else: # egreso
-            caja.saldo += monto_anterior
-        
-        # Aplicar el impacto del nuevo movimiento al saldo de caja
-        if tipo_nuevo == 'ingreso':
-            caja.saldo += monto_nuevo
-        else: # egreso
-            # Verificar si hay suficiente saldo para el nuevo egreso
-            if caja.saldo < monto_nuevo:
-                flash('No hay suficiente saldo en caja para el nuevo egreso. Revierta el cambio o ajuste el monto.', 'danger')
-                # Revertir los cambios si no hay saldo
-                if tipo_anterior == 'ingreso':
-                    caja.saldo += monto_anterior
-                else:
-                    caja.saldo -= monto_anterior
-                db.session.rollback() # Deshacer cualquier cambio potencial en la sesión
-                return render_template('form_modificar_movimiento.html', form=form, movimiento=movimiento)
-            caja.saldo -= monto_nuevo
-
-        # Actualizar los datos del movimiento
-        movimiento.tipo = tipo_nuevo
-        movimiento.motivo = form.motivo.data
-        movimiento.monto = monto_nuevo
-        # No actualizamos la fecha por defecto para mantener el registro original,
-        # pero puedes añadirla si lo necesitas: movimiento.fecha = datetime.utcnow()
-
-        db.session.commit()
-        flash('Movimiento de caja actualizado exitosamente.', 'success')
-        return redirect(url_for('movimientos_caja'))
-    
-    # Para la solicitud GET, simplemente renderiza el formulario pre-llenado
-    return render_template('form_modificar_movimiento.html', form=form, movimiento=movimiento)
-
-
-# Nueva ruta para eliminar un movimiento
-@app.route('/eliminar_movimiento/<int:movimiento_id>', methods=['POST']) # Usar POST para eliminación es más seguro
-def eliminar_movimiento(movimiento_id):
-    movimiento = MovimientoCaja.query.get_or_404(movimiento_id)
-    
-    caja = Caja.query.first()
-    if not caja:
-        flash('Error: No se encontró la caja principal.', 'danger')
-        return redirect(url_for('movimientos_caja'))
-
-    # Revertir el impacto del movimiento en el saldo de caja antes de eliminarlo
-    if movimiento.tipo == 'ingreso':
-        caja.saldo -= movimiento.monto
-    elif movimiento.tipo == 'egreso':
-        caja.saldo += movimiento.monto # Si era un egreso, el saldo debe aumentar al eliminarlo
-    
-    db.session.delete(movimiento)
-    db.session.commit()
-    flash('Movimiento de caja eliminado exitosamente.', 'success')
-    return redirect(url_for('movimientos_caja'))
-
-
-# Punto de entrada de la aplicación
-if __name__ == '__main__':
+# Inicialización de datos
+def inicializar_datos():
     with app.app_context():
         db.create_all()
-
+        
+        # Crear caja principal si no existe
         if not Caja.query.first():
-            db.session.add(Caja(saldo=0.0))
-            db.session.commit()
+            caja = Caja(nombre="Caja Principal", saldo=0.0)
+            db.session.add(caja)
+        
+        # Crear categorías básicas
+        categorias_base = ['Camisetas', 'Shorts', 'Buzos', 'Conjuntos', 'Medias', 'Accesorios']
+        for nombre in categorias_base:
+            if not Categoria.query.filter_by(nombre=nombre).first():
+                db.session.add(Categoria(nombre=nombre))
+        
+        # Crear usuario admin si no existe
+        if not Usuario.query.filter_by(username='admin').first():
+            from werkzeug.security import generate_password_hash
+            admin = Usuario(
+                username='admin',
+                password_hash=generate_password_hash('admin123'),
+                nombre='Administrador',
+                email='admin@tienda.com',
+                rol='admin'
+            )
+            db.session.add(admin)
+        
+        db.session.commit()
 
+if __name__ == '__main__':
+    inicializar_datos()
     app.run(debug=True)
