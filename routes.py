@@ -46,20 +46,19 @@ def actualizar_stock(variante_id, cantidad, tipo, motivo, usuario="Sistema"):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        
-        usuario = Usuario.query.filter_by(username=username).first()
-        
-        if usuario and check_password_hash(usuario.password_hash, password):
-            login_user(usuario)
-            flash('Inicio de sesión exitoso', 'success')
-            return redirect(url_for('dashboard'))
-        else:
-            flash('Usuario o contraseña incorrectos', 'danger')
+    form = LoginForm()  # Crea una instancia del formulario
     
-    return render_template('login.html')
+    if form.validate_on_submit():
+        # Lógica para procesar el login
+        email = form.email.data
+        password = form.password.data
+        remember = form.remember.data
+        
+        # Aquí iría tu lógica de autenticación
+        flash('Inicio de sesión exitoso', 'success')
+        return redirect(url_for('index'))
+    
+    return render_template('auth/login.html', form=form)  # Pasa el formulario a la plantilla
 
 @app.route('/logout')
 @login_required

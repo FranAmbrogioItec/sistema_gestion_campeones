@@ -2,6 +2,17 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, IntegerField, FloatField, SelectField, TextAreaField, BooleanField
 from wtforms.validators import DataRequired, Email, Optional, NumberRange
 
+class LoginForm(FlaskForm):
+    email = StringField('Email', validators=[
+        DataRequired(message="El email es obligatorio"),
+        Email(message="Ingrese un email válido")
+    ])
+    password = PasswordField('Contraseña', validators=[
+        DataRequired(message="La contraseña es obligatoria"),
+        Length(min=6, message="La contraseña debe tener al menos 6 caracteres")
+    ])
+    remember = BooleanField('Recordarme')
+
 class ProductoForm(FlaskForm):
     nombre = StringField('Nombre', validators=[DataRequired()])
     club_id = SelectField('Club', coerce=int, validators=[DataRequired()])

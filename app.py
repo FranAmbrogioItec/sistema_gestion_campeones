@@ -6,6 +6,10 @@ import os
 from dotenv import load_dotenv
 from datetime import datetime
 from models import *
+from forms import *
+
+
+app = Flask(__name__, template_folder='templates')  
 
 # Cargar variables de entorno
 load_dotenv()
@@ -189,21 +193,6 @@ def actualizar_stock(variante_id, cantidad, tipo, motivo, usuario="Sistema"):
     db.session.commit()
     return True
 
-# Rutas básicas
-@app.route('/')
-def index():
-    return render_template('index.html')
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    # Implementar lógica de login
-    return render_template('login.html')
-
-@app.route('/logout')
-def logout():
-    # Implementar lógica de logout
-    return redirect(url_for('index'))
-
 # Inicialización de datos
 def inicializar_datos():
     with app.app_context():
@@ -237,3 +226,5 @@ def inicializar_datos():
 if __name__ == '__main__':
     inicializar_datos()
     app.run(debug=True)
+
+from routes import *
