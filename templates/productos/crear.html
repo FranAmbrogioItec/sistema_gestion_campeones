@@ -5,7 +5,7 @@
 {% block content %}
 <div class="card">
     <div class="card-body">
-        <form method="post" action="{{ url_for('crear_producto') }}">
+        <form method="post" action="{{ url_for('productos.crear') }}">
             {{ form.hidden_tag() }}
             <div class="row g-3">
                 <div class="col-md-6">
@@ -78,7 +78,7 @@
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-save"></i> Guardar Producto
                     </button>
-                    <a href="{{ url_for('listar_productos') }}" class="btn btn-outline-secondary">
+                    <a href="{{ url_for('productos.listar') }}" class="btn btn-outline-secondary">
                         <i class="bi bi-x-circle"></i> Cancelar
                     </a>
                 </div>

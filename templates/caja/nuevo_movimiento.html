@@ -5,7 +5,7 @@
 {% block content %}
 <div class="card">
     <div class="card-body">
-        <form method="post" action="{{ url_for('nuevo_movimiento_caja') }}">
+        <form method="post" action="{{ url_for('caja.nuevo_movimiento') }}">
             {{ form.hidden_tag() }}
             <div class="row g-3">
                 <div class="col-md-4">

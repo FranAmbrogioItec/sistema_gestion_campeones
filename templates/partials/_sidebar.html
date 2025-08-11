@@ -1,22 +1,22 @@
 <div class="sticky-top pt-3">
     <ul class="nav flex-column">
         <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'listar_productos' %}active{% endif %}" href="{{ url_for('listar_productos') }}">
+            <a class="nav-link {% if request.endpoint == 'productos.listar' %}active{% endif %}" href="{{ url_for('productos.listar') }}">
                 <i class="bi bi-tshirt"></i> Productos
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'nueva_venta' %}active{% endif %}" href="{{ url_for('nueva_venta') }}">
+            <a class="nav-link {% if request.endpoint == 'ventas.nueva' %}active{% endif %}" href="{{ url_for('ventas.listar') }}">
                 <i class="bi bi-cash-stack"></i> Ventas
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'gestion_stock' %}active{% endif %}" href="{{ url_for('gestion_stock') }}">
+            <a class="nav-link {% if request.endpoint == 'stock.gestion' %}active{% endif %}" href="{{ url_for('stock.gestion') }}">
                 <i class="bi bi-box-seam"></i> Stock
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'gestion_caja' %}active{% endif %}" href="{{ url_for('gestion_caja') }}">
+            <a class="nav-link {% if request.endpoint == 'caja.gestion' %}active{% endif %}" href="{{ url_for('caja.gestion') }}">
                 <i class="bi bi-cash-coin"></i> Caja
             </a>
         </li>
@@ -25,10 +25,10 @@
                 <i class="bi bi-gear"></i> Configuración
             </a>
             <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="{{ url_for('gestion_clubes') }}">Clubes</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('gestion_categorias') }}">Categorías</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('gestion_clientes') }}">Clientes</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('gestion_proveedores') }}">Proveedores</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('configuracion.clubes') }}">Clubes</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('configuracion.categorias') }}">Categorías</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('configuracion.clientes') }}">Clientes</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('configuracion.proveedores') }}">Proveedores</a></li>
             </ul>
         </li>
     </ul>

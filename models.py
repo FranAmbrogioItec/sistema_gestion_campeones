@@ -1,25 +1,22 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
 from datetime import datetime
+from app import db
+from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
 
-db = SQLAlchemy()
-
-# Modelos de la base de datos
 class Club(db.Model):
     __tablename__ = 'clubes'
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50), unique=True, nullable=False)
     liga = db.Column(db.String(50))
     logo = db.Column(db.String(100))
-    productos = db.relationship('Producto', backref='club', lazy=True)
+    productos = db.relationship('Producto', back_populates='club', cascade='all, delete-orphan')
 
 class Categoria(db.Model):
     __tablename__ = 'categorias'
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50), unique=True, nullable=False)
     descripcion = db.Column(db.String(200))
-    productos = db.relationship('Producto', backref='categoria_rel', lazy=True)
+    productos = db.relationship('Producto', back_populates='categoria', cascade='all, delete-orphan')
 
 class Producto(db.Model):
     __tablename__ = 'productos'
@@ -33,7 +30,11 @@ class Producto(db.Model):
     imagen_principal = db.Column(db.String(100))
     activo = db.Column(db.Boolean, default=True)
     fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
-    variantes = db.relationship('Variante', backref='producto', lazy=True, cascade="all, delete-orphan")
+    
+    # Relaciones
+    club = db.relationship('Club', back_populates='productos')
+    categoria = db.relationship('Categoria', back_populates='productos')
+    variantes = db.relationship('Variante', back_populates='producto', cascade='all, delete-orphan')
 
 class Variante(db.Model):
     __tablename__ = 'variantes'
@@ -45,8 +46,11 @@ class Variante(db.Model):
     precio = db.Column(db.Float, nullable=False)
     stock = db.Column(db.Integer, default=0)
     stock_minimo = db.Column(db.Integer, default=5)
-    ventas = db.relationship('VentaItem', backref='variante', lazy=True)
-    movimientos = db.relationship('MovimientoStock', backref='variante', lazy=True, cascade="all, delete-orphan")
+    
+    # Relaciones
+    producto = db.relationship('Producto', back_populates='variantes')
+    ventas = db.relationship('VentaItem', back_populates='variante', cascade='all, delete-orphan')
+    movimientos = db.relationship('MovimientoStock', back_populates='variante', cascade='all, delete-orphan')
 
 class Cliente(db.Model):
     __tablename__ = 'clientes'
@@ -55,7 +59,7 @@ class Cliente(db.Model):
     email = db.Column(db.String(100), unique=True)
     telefono = db.Column(db.String(20))
     direccion = db.Column(db.Text)
-    ventas = db.relationship('Venta', backref='cliente', lazy=True)
+    ventas = db.relationship('Venta', back_populates='cliente', cascade='all, delete-orphan')
 
 class Venta(db.Model):
     __tablename__ = 'ventas'
@@ -65,8 +69,11 @@ class Venta(db.Model):
     total = db.Column(db.Float, nullable=False)
     tipo_venta = db.Column(db.String(20))
     estado = db.Column(db.String(20), default='completada')
-    items = db.relationship('VentaItem', backref='venta', lazy=True, cascade="all, delete-orphan")
-    movimiento_caja_id = db.Column(db.Integer, db.ForeignKey('movimientos_caja.id'))
+    
+    # Relaciones
+    cliente = db.relationship('Cliente', back_populates='ventas')
+    items = db.relationship('VentaItem', back_populates='venta', cascade='all, delete-orphan')
+    movimiento_caja = db.relationship('MovimientoCaja', back_populates='venta', uselist=False)
 
 class VentaItem(db.Model):
     __tablename__ = 'ventas_items'
@@ -76,13 +83,17 @@ class VentaItem(db.Model):
     cantidad = db.Column(db.Integer, nullable=False)
     precio_unitario = db.Column(db.Float, nullable=False)
     subtotal = db.Column(db.Float, nullable=False)
+    
+    # Relaciones
+    venta = db.relationship('Venta', back_populates='items')
+    variante = db.relationship('Variante', back_populates='ventas')
 
 class Caja(db.Model):
     __tablename__ = 'cajas'
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50), nullable=False)
     saldo = db.Column(db.Float, default=0.0)
-    movimientos = db.relationship('MovimientoCaja', backref='caja', lazy=True, cascade="all, delete-orphan")
+    movimientos = db.relationship('MovimientoCaja', back_populates='caja', cascade='all, delete-orphan')
 
 class MovimientoCaja(db.Model):
     __tablename__ = 'movimientos_caja'
@@ -92,7 +103,10 @@ class MovimientoCaja(db.Model):
     tipo = db.Column(db.String(20), nullable=False)
     motivo = db.Column(db.String(255), nullable=False)
     monto = db.Column(db.Float, nullable=False)
-    venta = db.relationship('Venta', backref='movimiento_caja', uselist=False)
+    
+    # Relaciones
+    caja = db.relationship('Caja', back_populates='movimientos')
+    venta = db.relationship('Venta', back_populates='movimiento_caja', uselist=False)
 
 class MovimientoStock(db.Model):
     __tablename__ = 'movimientos_stock'
@@ -103,6 +117,9 @@ class MovimientoStock(db.Model):
     cantidad = db.Column(db.Integer, nullable=False)
     motivo = db.Column(db.String(255))
     usuario = db.Column(db.String(50))
+    
+    # Relaciones
+    variante = db.relationship('Variante', back_populates='movimientos')
 
 class Proveedor(db.Model):
     __tablename__ = 'proveedores'
@@ -111,7 +128,7 @@ class Proveedor(db.Model):
     contacto = db.Column(db.String(100))
     telefono = db.Column(db.String(20))
     email = db.Column(db.String(100))
-    productos = db.relationship('ProductoProveedor', backref='proveedor', lazy=True)
+    productos = db.relationship('ProductoProveedor', back_populates='proveedor', cascade='all, delete-orphan')
 
 class ProductoProveedor(db.Model):
     __tablename__ = 'productos_proveedores'
@@ -120,8 +137,12 @@ class ProductoProveedor(db.Model):
     producto_id = db.Column(db.Integer, db.ForeignKey('productos.id'), nullable=False)
     codigo_proveedor = db.Column(db.String(50))
     precio_compra = db.Column(db.Float)
+    
+    # Relaciones
+    proveedor = db.relationship('Proveedor', back_populates='productos')
+    producto = db.relationship('Producto')
 
-class Usuario(db.Model):
+class Usuario(db.Model, UserMixin):
     __tablename__ = 'usuarios'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
@@ -130,6 +151,12 @@ class Usuario(db.Model):
     email = db.Column(db.String(100), unique=True, nullable=False)
     rol = db.Column(db.String(20), default='usuario')
     activo = db.Column(db.Boolean, default=True)
-
+    
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+    
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+    
     def __repr__(self):
         return f'<Usuario {self.username}>'

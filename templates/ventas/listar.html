@@ -8,7 +8,7 @@
         <h5 class="mb-0">Filtros</h5>
     </div>
     <div class="card-body">
-        <form method="get" action="{{ url_for('listar_ventas') }}">
+        <form method="get" action="{{ url_for('ventas.listar') }}">
             <div class="row g-3">
                 <div class="col-md-3">
                     <label for="fecha_desde" class="form-label">Desde</label>
@@ -51,7 +51,7 @@
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Ventas Registradas</h5>
-        <a href="{{ url_for('nueva_venta') }}" class="btn btn-primary btn-sm">
+        <a href="{{ url_for('ventas.nueva') }}" class="btn btn-primary btn-sm">
             <i class="bi bi-plus-circle"></i> Nueva Venta
         </a>
     </div>
@@ -83,7 +83,7 @@
                             </span>
                         </td>
                         <td>
-                            <a href="{{ url_for('detalle_venta', venta_id=venta.id) }}" class="btn btn-sm btn-outline-primary">
+                            <a href="{{ url_for('ventas.detalle', venta_id=venta.id) }}" class="btn btn-sm btn-outline-primary">                                
                                 <i class="bi bi-eye"></i>
                             </a>
                         </td>

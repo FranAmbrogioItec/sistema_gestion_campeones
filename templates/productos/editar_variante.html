@@ -5,7 +5,7 @@
 {% block content %}
 <div class="card">
     <div class="card-body">
-        <form method="post" action="{{ url_for('editar_variante', variante_id=variante.id) }}">
+        <form method="post" action="{{ url_for('productos.editar_variante', variante_id=variante.id) }}">
             {{ form.hidden_tag() }}
             <div class="row g-3">
                 <div class="col-md-6">

@@ -1,14 +1,15 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, FloatField, SelectField, TextAreaField, BooleanField
-from wtforms.validators import DataRequired, Email, Optional, NumberRange
+from wtforms import StringField, IntegerField, FloatField, SelectField, TextAreaField, BooleanField, PasswordField
+from wtforms.validators import DataRequired, Email, Optional, NumberRange, Length, ValidationError
+from models import Usuario, Variante
 
 class LoginForm(FlaskForm):
     email = StringField('Email', validators=[
-        DataRequired(message="El email es obligatorio"),
-        Email(message="Ingrese un email válido")
+        DataRequired("El email es obligatorio"),
+        Email("Ingrese un email válido")
     ])
     password = PasswordField('Contraseña', validators=[
-        DataRequired(message="La contraseña es obligatoria"),
+        DataRequired("La contraseña es obligatoria"),
         Length(min=6, message="La contraseña debe tener al menos 6 caracteres")
     ])
     remember = BooleanField('Recordarme')
@@ -23,16 +24,19 @@ class ProductoForm(FlaskForm):
 
 class VarianteForm(FlaskForm):
     talle = SelectField('Talle', choices=[
-        ('XS', 'XS'), ('S', 'S'), ('M', 'M'), 
-        ('L', 'L'), ('XL', 'XL'), ('XXL', 'XXL'),
-        ('28', '28'), ('30', '30'), ('32', '32'), ('34', '34'), ('36', '36'),
-        ('38', '38'), ('40', '40'), ('42', '42'), ('44', '44'), ('46', '46')
+        ('S', 'S'), ('M', 'M'), ('L', 'L'), ('XL', 'XL'), ('XXL', 'XXL'),
+        ('6', '6'), ('8', '8'), ('10', '10'), ('12', '12'), ('14', '14'),('16', '16'), 
+        ('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5')
     ], validators=[DataRequired()])
     color = StringField('Color', validators=[Optional()])
     sku = StringField('SKU', validators=[DataRequired()])
     precio = FloatField('Precio', validators=[DataRequired()])
     stock = IntegerField('Stock Inicial', validators=[DataRequired(), NumberRange(min=0)])
     stock_minimo = IntegerField('Stock Mínimo', validators=[Optional(), NumberRange(min=0)])
+    
+    def validate_sku(self, field):
+        if Variante.query.filter_by(sku=field.data).first():
+            raise ValidationError('Este SKU ya está en uso. Por favor elija otro.')
 
 class VentaForm(FlaskForm):
     cliente_id = SelectField('Cliente', coerce=int, validators=[Optional()])
@@ -45,19 +49,50 @@ class MovimientoCajaForm(FlaskForm):
 class ClubForm(FlaskForm):
     nombre = StringField('Nombre', validators=[DataRequired()])
     liga = StringField('Liga', validators=[Optional()])
+    
+    def validate_nombre(self, field):
+        if Club.query.filter_by(nombre=field.data).first():
+            raise ValidationError('Este nombre de club ya existe.')
 
 class CategoriaForm(FlaskForm):
     nombre = StringField('Nombre', validators=[DataRequired()])
     descripcion = StringField('Descripción', validators=[Optional()])
+    
+    def validate_nombre(self, field):
+        if Categoria.query.filter_by(nombre=field.data).first():
+            raise ValidationError('Esta categoría ya existe.')
 
 class ClienteForm(FlaskForm):
     nombre = StringField('Nombre', validators=[DataRequired()])
     email = StringField('Email', validators=[Optional(), Email()])
     telefono = StringField('Teléfono', validators=[Optional()])
     direccion = StringField('Dirección', validators=[Optional()])
+    
+    def validate_email(self, field):
+        if field.data and Cliente.query.filter_by(email=field.data).first():
+            raise ValidationError('Este email ya está registrado.')
 
 class ProveedorForm(FlaskForm):
     nombre = StringField('Nombre', validators=[DataRequired()])
     contacto = StringField('Contacto', validators=[Optional()])
     telefono = StringField('Teléfono', validators=[Optional()])
     email = StringField('Email', validators=[Optional(), Email()])
+    
+    def validate_email(self, field):
+        if field.data and Proveedor.query.filter_by(email=field.data).first():
+            raise ValidationError('Este email ya está registrado.')
+
+class UsuarioForm(FlaskForm):
+    username = StringField('Nombre de usuario', validators=[DataRequired(), Length(min=4, max=50)])
+    password = PasswordField('Contraseña', validators=[DataRequired(), Length(min=6)])
+    nombre = StringField('Nombre completo', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    rol = SelectField('Rol', choices=[('admin', 'Administrador'), ('usuario', 'Usuario')], validators=[DataRequired()])
+    
+    def validate_username(self, field):
+        if Usuario.query.filter_by(username=field.data).first():
+            raise ValidationError('Este nombre de usuario ya está en uso.')
+    
+    def validate_email(self, field):
+        if Usuario.query.filter_by(email=field.data).first():
+            raise ValidationError('Este email ya está registrado.')
