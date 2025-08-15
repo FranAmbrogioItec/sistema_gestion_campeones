@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, IntegerField, FloatField, SelectField, TextAreaField, BooleanField, PasswordField
 from wtforms.validators import DataRequired, Email, Optional, NumberRange, Length, ValidationError
-from models import Usuario, Variante
+from models import Usuario, Variante, Club, Categoria, Cliente, Proveedor  # AGREGADOS LOS IMPORTS FALTANTES
 
 class LoginForm(FlaskForm):
     email = StringField('Email', validators=[

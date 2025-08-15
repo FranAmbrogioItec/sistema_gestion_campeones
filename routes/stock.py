@@ -23,7 +23,7 @@ def gestion():
     
     variantes = query.options(
         db.joinedload(Variante.producto).joinedload(Producto.club),
-        db.joinedload(Variante.producto).joinedload(Producto.categoria_rel)
+        db.joinedload(Variante.producto).joinedload(Producto.categoria)
     ).order_by(Producto.nombre, Variante.talle).all()
     
     categorias = Categoria.query.order_by(Categoria.nombre).all()

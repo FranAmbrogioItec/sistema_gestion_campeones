@@ -69,6 +69,7 @@ class Venta(db.Model):
     total = db.Column(db.Float, nullable=False)
     tipo_venta = db.Column(db.String(20))
     estado = db.Column(db.String(20), default='completada')
+    movimiento_caja_id = db.Column(db.Integer, db.ForeignKey('movimientos_caja.id'))  
     
     # Relaciones
     cliente = db.relationship('Cliente', back_populates='ventas')

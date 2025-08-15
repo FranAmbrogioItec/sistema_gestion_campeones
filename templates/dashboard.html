@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Sistema de Gestión{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Panel de Control</h1>
+    
+    <div class="row">
+        <!-- Tarjeta de Productos -->
+        <div class="col-md-4 mb-4">
+            <div class="card text-white bg-primary h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Productos</h5>
+                    <h2 class="card-text">{{ total_productos }}</h2>
+                    <a href="{{ url_for('productos.listar') }}" class="text-white">Ver productos</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tarjeta de Ventas -->
+        <div class="col-md-4 mb-4">
+            <div class="card text-white bg-success h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Ventas</h5>
+                    <h2 class="card-text">{{ total_ventas }}</h2>
+                    <a href="{{ url_for('ventas.listar') }}" class="text-white">Ver ventas</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tarjeta de Stock Bajo -->
+        <div class="col-md-4 mb-4">
+            <div class="card text-white bg-warning h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Stock Bajo</h5>
+                    <h2 class="card-text">{{ productos_bajo_stock }}</h2>
+                    <a href="{{ url_for('stock.gestion') }}?stock_bajo=true" class="text-white">Ver productos</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sección de Ventas Recientes -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5>Ventas Recientes</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Fecha</th>
+                            <th>Cliente</th>
+                            <th>Total</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for venta in ventas_recientes %}
+                        <tr>
+                            <td>{{ venta.id }}</td>
+                            <td>{{ venta.fecha_venta.strftime('%d/%m/%Y %H:%M') }}</td>
+                            <td>
+                                {% if venta.cliente %}
+                                    {{ venta.cliente.nombre }}
+                                {% else %}
+                                    Cliente ocasional
+                                {% endif %}
+                            </td>
+                            <td>${{ "%.2f"|format(venta.total) }}</td>
+                            <td>
+                                <a href="{{ url_for('ventas.detalle', venta_id=venta.id) }}" class="btn btn-sm btn-info">
+                                    Detalle
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

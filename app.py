@@ -31,6 +31,11 @@ def create_app():
     migrate.init_app(app, db)
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        from models import Usuario  # Import aquí para evitar circular imports
+        return Usuario.query.get(int(user_id))
     
     # Registrar blueprints (importación correcta para la opción A)
     from routes.auth import bp as auth_bp
@@ -78,11 +83,11 @@ def create_app():
         if not Usuario.query.filter_by(username='admin').first():
             admin = Usuario(
                 username='admin',
-                password_hash=generate_password_hash('admin123'),
                 nombre='Administrador',
                 email='admin@tienda.com',
                 rol='admin'
             )
+            admin.set_password('admin123')  # Esto usará el método definido en el modelo
             db.session.add(admin)
         
         db.session.commit()
