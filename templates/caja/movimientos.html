@@ -8,7 +8,7 @@
         <h5 class="mb-0">Filtros</h5>
     </div>
     <div class="card-body">
-        <form method="get" action="{{ url_for('listar_movimientos_caja') }}">
+        <form method="get" action="{{ url_for('caja.movimientos') }}">
             <div class="row g-3">
                 <div class="col-md-3">
                     <label for="fecha_desde" class="form-label">Desde</label>
@@ -30,7 +30,7 @@
                     <button type="submit" class="btn btn-primary me-2">
                         <i class="bi bi-funnel"></i> Filtrar
                     </button>
-                    <a href="{{ url_for('listar_movimientos_caja') }}" class="btn btn-outline-secondary">
+                    <a href="{{ url_for('caja.movimientos') }}" class="btn btn-outline-secondary">
                         <i class="bi bi-x-circle"></i> Limpiar
                     </a>
                 </div>
