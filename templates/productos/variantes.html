@@ -10,7 +10,7 @@
                 <h5 class="mb-0">Agregar Nueva Variante</h5>
             </div>
             <div class="card-body">
-                <form method="post" action="{{ url_for('agregar_variantes', producto_id=producto.id) }}">
+                <form method="post" action="{{ url_for('productos.agregar_variantes', producto_id=producto.id) }}">
                     {{ form.hidden_tag() }}
                     <div class="row g-3">
                         <div class="col-md-6">
