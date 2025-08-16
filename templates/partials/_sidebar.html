@@ -1,35 +1,75 @@
-<div class="sticky-top pt-3">
-    <ul class="nav flex-column">
+<div class="sidebar-nav">
+    <!-- Encabezado clickeable -->
+    <div class="sidebar-brand p-3 d-flex align-items-center justify-content-center bg-primary">
+        <a href="{{ url_for('auth.dashboard') }}" class="text-white text-decoration-none d-flex align-items-center">
+            <i class="bi bi-shop-window fs-4 me-2"></i>
+            <h5 class="mb-0 fw-bold">Gestión de Ventas</h5>
+        </a>
+    </div>
+
+    <hr class="sidebar-divider my-0">
+
+    <!-- Ítems del menú -->
+    <ul class="nav flex-column w-100">
+        <li class="nav-item">
+            <a class="nav-link {% if request.endpoint == 'auth.dashboard' %}active{% endif %}" href="{{ url_for('auth.dashboard') }}">
+                <i class="bi bi-speedometer2 me-2"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+        
         <li class="nav-item">
             <a class="nav-link {% if request.endpoint == 'productos.listar' %}active{% endif %}" href="{{ url_for('productos.listar') }}">
-                <i class="bi bi-tshirt"></i> Productos
+                <i class="bi bi-cash-coin me-2"></i>
+                <span>Productos</span>
             </a>
         </li>
+        
         <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'ventas.nueva' %}active{% endif %}" href="{{ url_for('ventas.listar') }}">
-                <i class="bi bi-cash-stack"></i> Ventas
+            <a class="nav-link {% if 'ventas' in request.endpoint %}active{% endif %}" href="{{ url_for('ventas.listar') }}">
+                <i class="bi bi-cash-stack me-2"></i>
+                <span>Ventas</span>
             </a>
         </li>
+        
         <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'stock.gestion' %}active{% endif %}" href="{{ url_for('stock.gestion') }}">
-                <i class="bi bi-box-seam"></i> Stock
+            <a class="nav-link {% if 'stock' in request.endpoint %}active{% endif %}" href="{{ url_for('stock.gestion') }}">
+                <i class="bi bi-box-seam me-2"></i>
+                <span>Stock</span>
             </a>
         </li>
+        
         <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'caja.gestion' %}active{% endif %}" href="{{ url_for('caja.gestion') }}">
-                <i class="bi bi-cash-coin"></i> Caja
+            <a class="nav-link {% if 'caja' in request.endpoint %}active{% endif %}" href="{{ url_for('caja.gestion') }}">
+                <i class="bi bi-cash-coin me-2"></i>
+                <span>Caja</span>
             </a>
         </li>
-        <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                <i class="bi bi-gear"></i> Configuración
+        
+        <hr class="sidebar-divider">
+        
+        <li class="nav-item">
+            <a class="nav-link collapsed" data-bs-toggle="collapse" href="#collapseConfig" aria-expanded="false">
+                <i class="bi bi-gear me-2"></i>
+                <span>Configuración</span>
+                <i class="bi bi-chevron-down float-end mt-1"></i>
             </a>
-            <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="{{ url_for('configuracion.clubes') }}">Clubes</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('configuracion.categorias') }}">Categorías</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('configuracion.clientes') }}">Clientes</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('configuracion.proveedores') }}">Proveedores</a></li>
-            </ul>
+            <div class="collapse" id="collapseConfig">
+                <ul class="nav flex-column ps-4">
+                    <li class="nav-item">
+                        <a class="nav-link py-1" href="{{ url_for('configuracion.clubes') }}">Clubes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link py-1" href="{{ url_for('configuracion.categorias') }}">Categorías</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link py-1" href="{{ url_for('configuracion.clientes') }}">Clientes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link py-1" href="{{ url_for('configuracion.proveedores') }}">Proveedores</a>
+                    </li>
+                </ul>
+            </div>
         </li>
     </ul>
 </div>
