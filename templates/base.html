@@ -94,7 +94,10 @@
         <!-- Sidebar -->
         <div class="sidebar">
             <div class="sidebar-brand p-3 d-flex align-items-center">
-                <h5 class="mb-0">Gestión de Ventas</h5>
+                <a href="{{ url_for('auth.dashboard') }}" class="text-white text-decoration-none d-flex align-items-center">
+                    <i class="bi bi-shop-window me-2"></i>
+                    <h5 class="mb-0">Gestión de Ventas</h5>
+                </a>
             </div>
             <hr class="sidebar-divider my-0">
             {% include 'partials/_sidebar.html' %}

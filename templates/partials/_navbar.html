@@ -1,5 +1,14 @@
 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-    <div class="container-fluid justify-content-end">
+    <div class="container-fluid">
+        <!-- Logo y título (lado izquierdo) -->
+        <div class="d-flex align-items-center">
+            <img src="{{ url_for('static', filename='images/campeones_logo.png') }}" alt="Logo Campeones" height="40" class="me-2">
+            <span class="navbar-brand mb-0 h1 d-none d-sm-inline" style="font-family: 'Inter', sans-serif; font-weight: 600;">
+                Campeones Indumentaria
+            </span>
+        </div>
+
+        <!-- Menú usuario (lado derecho) -->
         <ul class="navbar-nav">
             <li class="nav-item dropdown no-arrow">
                 <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" 
@@ -17,3 +26,18 @@
         </ul>
     </div>
 </nav>
+
+<style>
+    /* Estilos adicionales para el logo y título */
+    .navbar-brand {
+        color: #3d7ad6 !important;
+        font-size: 1.2rem;
+        letter-spacing: 0.5px;
+    }
+    
+    @media (max-width: 576px) {
+        .navbar-brand {
+            font-size: 1rem;
+        }
+    }
+</style>
